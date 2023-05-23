@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 
-from .models import User, Competence, Trajectory
+from .models import User, Competence, Trajectory, Order
 
 
 
@@ -45,6 +45,11 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255, write_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
+    role = serializers.CharField(max_length=30, read_only=True)
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        fields = ["email", "password", "role"]
 
     def validate(self, data):
         email = data.get("email")
@@ -74,7 +79,9 @@ class LoginSerializer(serializers.Serializer):
 
         return {
             "email": user.email,
-            "token": user.token
+            "token": user.token,
+            "role": user.role,
+            "id": user.id
         }
 
 
@@ -89,7 +96,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'token',)
+        fields = fields = [
+            "id",
+            "token",
+            "email",
+            "password",
+            "name",
+            "role",
+            "sex",
+            "image",
+            "birth_date",
+            "phone_number",
+            "about_self",
+            "learning_trajectory",
+            "course_number",
+            "education_stage",
+        ]
 
         read_only_fields = ('token',)
 
@@ -108,13 +130,13 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
-
 class CompetenceSerializer(serializers.ModelSerializer):
 
     name = serializers.CharField(max_length=30)
 
     class Meta:
         model = Competence
+        fields = ["name"]
 
 
 class TrajectorySerializer(serializers.ModelSerializer):
@@ -123,4 +145,34 @@ class TrajectorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Trajectory
         fields = ["name"]
+
+class ExpertsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "name", "learning_trajectory", "course_number", "about_self", "image"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=200)
+    description = serializers.CharField(max_length=200)
+    id = serializers.ReadOnlyField()
+    price = serializers.IntegerField()
+    learning_type = serializers.CharField(max_length=100)
+    class Meta:
+        model = Order
+        fields = ["id", "name", "description", "price", "student", "learning_type"]
+
+    def create(self, validated_data):
+        return Order.objects.create(**validated_data)
+
+class OrdersSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=30)
+    description = serializers.CharField(max_length=200)
+    price = serializers.IntegerField()
+    learning_type = serializers.CharField(max_length=10)
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Order
+        fields = ["id", "name", "description", "student", "price", "learning_type"]
 

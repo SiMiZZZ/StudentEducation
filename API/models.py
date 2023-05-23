@@ -107,3 +107,14 @@ class Trajectory(models.Model):
 
     def __str__(self):
         return self.name
+
+class Order(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(max_length=300, null=True)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    price = models.IntegerField(null=True)
+    learning_type = models.CharField(max_length=20, null=True)
+
+
+    def __str__(selfs):
+        return self.name

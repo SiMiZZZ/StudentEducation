@@ -6,17 +6,19 @@ from rest_framework.views import APIView
 
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer, CompetenceSerializer, TrajectorySerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    CompetenceSerializer, TrajectorySerializer, ExpertsSerializer,
+    OrderSerializer, OrdersSerializer
 )
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Competence, User, User_competence, Trajectory
+from .models import Competence, User, User_competence, Trajectory, Order
 
 
 class RegistrationAPIView(APIView):
     permission_classes = (AllowAny, )
     serializer_class = RegistrationSerializer
-    renderer_classes = (UserJSONRenderer,)
+   # renderer_classes = (UserJSONRenderer,)
 
     def post(self, request):
         user = request.data.get("user", {})
@@ -24,11 +26,19 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        if "competencies" in user:
-            self.save_competences(user["email"], user["competencies"].split(" "))
+        if "competencies" in user and user["competencies"] != "":
+            self.save_competences(user["email"], user["competencies"])
 
+        if "learning_trajectory" in user:
+            self.save_trajectory(user["email"], user["learning_trajectory"])
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def save_trajectory(self, email, trajectory):
+        user = User.objects.filter(email=email).first()
+        trajectory = Trajectory.objects.filter(name=trajectory).first()
+        user.learning_trajectory = trajectory
+        print(user.learning_trajectory)
 
     def save_competences(self, email, competences):
         user = User.objects.filter(email=email).first()
@@ -47,7 +57,6 @@ class LoginApiView(APIView):
 
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -58,8 +67,11 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.serializer_class(request.user)
+        return_data = dict(serializer.data)
+        competencies = list(map(lambda x: x.name, User_competence.objects.filter(user_id=request.user).all()))
+        return_data["competencies"] = competencies
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(return_data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         serializer_data = request.data.get('user', {})
@@ -96,3 +108,77 @@ class TrajectoryAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+class ExpertsAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ExpertsSerializer
+
+    def get(self, request):
+        experts = User.objects.filter(role="expert").all()
+        serializer = self.serializer_class(experts, many=True)
+
+        return_data = list(serializer.data)
+
+        for user in return_data:
+            user_competencies = User_competence.objects.filter(user_id=user["id"]).all()
+            competencies = list(map(lambda x: x.competence_id.name, user_competencies))
+            user["competencies"] = competencies
+
+        return Response(return_data, status=status.HTTP_200_OK)
+
+class UserApiView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
+
+    def get(self, request, user_id):
+        user = User.objects.filter(id=user_id).first()
+        serializer = self.serializer_class(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = OrderSerializer
+
+    def post(self, request):
+        request_data = dict(request.data)
+        request_data["student"] = request.user.id
+        serialiser = self.serializer_class(data=request_data)
+        serialiser.is_valid(raise_exception=True)
+        serialiser.save()
+        return Response(serialiser.data, status=status.HTTP_200_OK)
+
+    def get(self, request, order_id):
+        serializer_data = Order.objects.get(id=order_id)
+        serializer = self.serializer_class(serializer_data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserOrdersApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = OrdersSerializer
+
+    def get(self, request):
+        user = request.user
+        orders = Order.objects.filter(student=user).all()
+        serializer = self.serializer_class(orders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrdersApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = OrdersSerializer
+
+    def get(self, request):
+        orders_on_page = 10
+        page = int(request.query_params.get("page"))-1
+        orders_count = Order.objects.count()
+        if orders_count > (orders_on_page * page + orders_on_page):
+            orders = Order.objects.all()[page*orders_on_page:page*orders_on_page+orders_on_page]
+        else:
+            orders = Order.objects.all()[page*orders_on_page:]
+
+        serializer = self.serializer_class(orders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
