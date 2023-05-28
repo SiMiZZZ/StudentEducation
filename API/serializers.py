@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 
-from .models import User, Competence, Trajectory, Order
+from .models import User, Competence, Trajectory, Order, Reply
 
 
 
@@ -176,3 +176,13 @@ class OrdersSerializer(serializers.Serializer):
         model = Order
         fields = ["id", "name", "description", "student", "price", "learning_type"]
 
+class ReplySerializer(serializers.ModelSerializer):
+    # order = serializers.ReadOnlyField()
+    # comment = serializers.CharField(max_length=200)
+    # expert = serializers.ReadOnlyField()
+    class Meta:
+        model = Reply
+        fields = ["id", "comment", "order", "expert"]
+
+    def create(self, validated_data):
+        return Reply.objects.create(**validated_data)

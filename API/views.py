@@ -8,7 +8,7 @@ from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     CompetenceSerializer, TrajectorySerializer, ExpertsSerializer,
-    OrderSerializer, OrdersSerializer
+    OrderSerializer, OrdersSerializer, ReplySerializer
 )
 from django.views.decorators.csrf import csrf_exempt
 
@@ -180,5 +180,19 @@ class OrdersApiView(APIView):
             orders = Order.objects.all()[page*orders_on_page:]
 
         serializer = self.serializer_class(orders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReplyApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ReplySerializer
+
+    def post(self, request):
+        request_data = dict(request.data)
+        request_data["expert"] = request.user.id
+        serializer = self.serializer_class(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)

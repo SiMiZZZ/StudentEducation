@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .views import RegistrationAPIView, LoginApiView, UserRetrieveUpdateAPIView,\
-    CompetenceAPIView, TrajectoryAPIView, ExpertsAPIView, UserApiView, OrderApiView, UserOrdersApiView, OrdersApiView
+    CompetenceAPIView, TrajectoryAPIView, ExpertsAPIView,\
+    UserApiView, OrderApiView, UserOrdersApiView, OrdersApiView, ReplyApiView
 
 urlpatterns = [
     path("auth/registration", RegistrationAPIView.as_view()), # POST
@@ -15,5 +16,6 @@ urlpatterns = [
     path("order", OrderApiView.as_view()), # POST
     path("order/<int:order_id>", OrderApiView.as_view()), # GET
     path("user/orders", UserOrdersApiView.as_view()),
-    path("orders", OrdersApiView.as_view())
+    path("orders", OrdersApiView.as_view()),
+    path("reply", ReplyApiView.as_view())
 ]
