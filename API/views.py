@@ -68,7 +68,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         serializer = self.serializer_class(request.user)
         return_data = dict(serializer.data)
-        competencies = list(map(lambda x: x.name, User_competence.objects.filter(user_id=request.user).all()))
+        competencies = list(map(lambda x: Competence.objects.get(id=x.competence_id).name, User_competence.objects.filter(user_id=request.user).all()))
         return_data["competencies"] = competencies
 
         return Response(return_data, status=status.HTTP_200_OK)
