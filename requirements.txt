@@ -5,6 +5,7 @@ charset-normalizer==3.1.0
 coreapi==2.3.3
 coreschema==0.0.4
 cryptography==40.0.0
+dj-database-url==2.0.0
 Django==4.1.7
 django-cors-headers==3.14.0
 django-multiselectfield==0.1.12
@@ -23,6 +24,7 @@ pytz==2022.7.1
 requests==2.30.0
 simplejson==3.19.1
 sqlparse==0.4.3
+typing_extensions==4.6.2
 tzdata==2022.7
 uritemplate==4.1.1
 urllib3==2.0.2
