@@ -3,6 +3,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 
 from .renderers import UserJSONRenderer
 from .serializers import (
@@ -196,19 +197,40 @@ class ReplyApiView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 class RepliesApiView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ReplySerializer
     def get(self, request):
-        order_id = int(request.query_params.get("order"))
-        serializer_data = Reply.objects.filter(order_id=order_id)
+        order_id = request.query_params.get("order")
+        if order_id != None:
+            order_id = int(order_id)
+            serializer_data = Reply.objects.filter(order_id=order_id)
+            serializer = self.serializer_class(serializer_data, many=True)
+            return_data = list(serializer.data)
+            for item in return_data:
+                expert = User.objects.get(id=item["expert"])
+                item["expert"] = {"id": expert.id, "name": expert.name, "image": expert.image,
+                                  "learning_trajectory": expert.learning_trajectory}
+        else:
+            raise ValidationError("Не указан order_id")
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserRepliesAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ReplySerializer
+
+    def get(self, request):
+        user = request.user
+        serializer_data = Reply.objects.filter(expert_id=user.id)
         serializer = self.serializer_class(serializer_data, many=True)
+
         return_data = list(serializer.data)
         for item in return_data:
             expert = User.objects.get(id=item["expert"])
             item["expert"] = {"id": expert.id, "name": expert.name, "image": expert.image,
                               "learning_trajectory": expert.learning_trajectory}
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
+        return Response(return_data, status=status.HTTP_200_OK)

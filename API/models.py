@@ -124,6 +124,7 @@ class Reply(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     expert = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     comment = models.TextField(max_length=200)
+    status = models.CharField(max_length=20, default="opened")
     created_at = models.DateTimeField(auto_now_add=True)
 
 
