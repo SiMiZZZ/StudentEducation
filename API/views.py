@@ -204,6 +204,11 @@ class RepliesApiView(APIView):
         order_id = int(request.query_params.get("order"))
         serializer_data = Reply.objects.filter(order_id=order_id)
         serializer = self.serializer_class(serializer_data, many=True)
+        return_data = list(serializer.data)
+        for item in return_data:
+            expert = User.objects.get(id=item["expert"])
+            item["expert"] = {"id": expert.id, "name": expert.name, "image": expert.image,
+                              "learning_trajectory": expert.learning_trajectory}
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
