@@ -12,7 +12,7 @@ from .serializers import (
 )
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Competence, User, User_competence, Trajectory, Order
+from .models import Competence, User, User_competence, Trajectory, Order, Reply
 
 
 class RegistrationAPIView(APIView):
@@ -196,3 +196,14 @@ class ReplyApiView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RepliesApiView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ReplySerializer
+    def get(self, request):
+        order_id = int(request.query_params.get("order"))
+        serializer_data = Reply.objects.filter(order_id=order_id)
+        serializer = self.serializer_class(serializer_data, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

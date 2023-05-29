@@ -3,7 +3,7 @@ from django.urls import path, include
 
 from .views import RegistrationAPIView, LoginApiView, UserRetrieveUpdateAPIView,\
     CompetenceAPIView, TrajectoryAPIView, ExpertsAPIView,\
-    UserApiView, OrderApiView, UserOrdersApiView, OrdersApiView, ReplyApiView
+    UserApiView, OrderApiView, UserOrdersApiView, OrdersApiView, ReplyApiView, RepliesApiView
 
 urlpatterns = [
     path("auth/registration", RegistrationAPIView.as_view()), # POST
@@ -17,5 +17,6 @@ urlpatterns = [
     path("order/<int:order_id>", OrderApiView.as_view()), # GET
     path("user/orders", UserOrdersApiView.as_view()),
     path("orders", OrdersApiView.as_view()),
-    path("reply", ReplyApiView.as_view())
+    path("reply", ReplyApiView.as_view()),
+    path("replies", RepliesApiView.as_view())
 ]
