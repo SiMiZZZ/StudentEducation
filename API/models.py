@@ -40,7 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     role = models.CharField(max_length=20, null=True)
     name = models.CharField(max_length=30, null=True)
-    image = models.TextField(null=True)
+    image = models.TextField(blank=True, null=True)
     sex = models.CharField(max_length=10, null=True)
     birth_date = models.DateField(null=True)
     phone_number = models.CharField(max_length=12, null=True)
