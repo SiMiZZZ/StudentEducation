@@ -44,7 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     sex = models.CharField(max_length=10, null=True)
     birth_date = models.DateField(null=True)
     phone_number = models.CharField(max_length=12, null=True)
-    about_self = models.TextField(max_length=300, null=True)
+    about_self = models.TextField(max_length=300, null=True, blank=True)
 
     learning_trajectory = models.CharField(max_length=50, null=True)
     course_number = models.IntegerField(null=True)
