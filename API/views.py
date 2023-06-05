@@ -228,9 +228,9 @@ class UserRepliesAPIView(APIView):
 
         return_data = list(serializer.data)
         for item in return_data:
-            expert = User.objects.get(id=item["expert"])
-            item["expert"] = {"id": expert.id, "name": expert.name, "image": expert.image,
-                              "learning_trajectory": expert.learning_trajectory}
-
+            order = Order.objects.get(id=item["order"])
+            item["order"] = {"id": order.id, "name": order.name,
+                             "learning_type": order.learning_type, "price": order.price,
+                             "description": order.description}
 
         return Response(return_data, status=status.HTTP_200_OK)
