@@ -178,7 +178,7 @@ class OrdersSerializer(serializers.Serializer):
 
 class ReplySerializer(serializers.ModelSerializer):
     # order = serializers.ReadOnlyField(read_only=True)
-    comment = serializers.CharField(max_length=200, read_only=True)
+    # comment = serializers.CharField(max_length=200, write_only=True)
     # expert = serializers.ReadOnlyField()
     # status = serializers.CharField(max_length=20, write_only=True)
     class Meta:
