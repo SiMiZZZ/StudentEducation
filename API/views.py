@@ -207,7 +207,10 @@ class ReplyApiView(APIView):
         if instance_reply.status != "opened":
             replies = Reply.objects.filter(order=instance_reply.order)
             for reply in replies:
-                reply.status = "rejected"
+                if reply.id != instance_reply.id:
+                    reply.status = "rejected"
+                    print(reply.status)
+                    reply.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
