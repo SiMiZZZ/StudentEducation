@@ -177,12 +177,21 @@ class OrdersSerializer(serializers.Serializer):
         fields = ["id", "name", "description", "student", "price", "learning_type"]
 
 class ReplySerializer(serializers.ModelSerializer):
-    # order = serializers.ReadOnlyField()
-    # comment = serializers.CharField(max_length=200)
+    # order = serializers.ReadOnlyField(read_only=True)
+    comment = serializers.CharField(max_length=200, read_only=True)
     # expert = serializers.ReadOnlyField()
+    # status = serializers.CharField(max_length=20, write_only=True)
     class Meta:
         model = Reply
-        fields = ["id", "comment", "order", "expert"]
+        fields = ["id", "comment", "order", "expert", "status"]
+
 
     def create(self, validated_data):
         return Reply.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance

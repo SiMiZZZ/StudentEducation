@@ -197,6 +197,20 @@ class ReplyApiView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, pk):
+        instance_reply = Reply.objects.get(id=pk)
+        serializer = self.serializer_class(instance_reply, request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if instance_reply.status != "opened":
+            replies = Reply.objects.filter(order=instance_reply.order)
+            for reply in replies:
+                reply.status = "rejected"
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class RepliesApiView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ReplySerializer

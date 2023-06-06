@@ -19,5 +19,6 @@ urlpatterns = [
     path("orders", OrdersApiView.as_view()),
     path("reply", ReplyApiView.as_view()),
     path("replies", RepliesApiView.as_view()),
-    path("user/replies", UserRepliesAPIView.as_view())
+    path("user/replies", UserRepliesAPIView.as_view()),
+    path("reply/<int:pk>", ReplyApiView.as_view())
 ]
