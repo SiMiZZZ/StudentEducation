@@ -204,7 +204,7 @@ class ReplyApiView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        if instance_reply.status != "opened":
+        if instance_reply.status == "accepted":
             replies = Reply.objects.filter(order=instance_reply.order)
             for reply in replies:
                 if reply.id != instance_reply.id:
