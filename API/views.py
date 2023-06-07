@@ -180,7 +180,14 @@ class OrdersApiView(APIView):
         else:
             orders = Order.objects.all()[page*orders_on_page:]
 
-        serializer = self.serializer_class(orders, many=True)
+        replies_orders = Reply.objects.filter(expert_id=request.user.id).values_list("order_id")[0]
+        true_orders = []
+
+        for order in orders:
+            if order.id not in replies_orders:
+                true_orders.append(order)
+
+        serializer = self.serializer_class(true_orders, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
