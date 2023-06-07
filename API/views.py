@@ -186,7 +186,7 @@ class OrdersApiView(APIView):
         for order in orders:
             if order.id not in replies_orders:
                 true_orders.append(order)
-
+        print(true_orders, replies_orders)
         serializer = self.serializer_class(true_orders, many=True)
 
         return_data = list(serializer.data)
