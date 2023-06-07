@@ -189,6 +189,14 @@ class OrdersApiView(APIView):
 
         serializer = self.serializer_class(true_orders, many=True)
 
+        return_data = list(serializer.data)
+
+        for order in return_data:
+            student = Order.objects.get(id=order["id"]).student
+            order["student"] = {"course": student.course_number,
+                                "learning_trajectory": student.learning_trajectory,
+                                "student_id": student.id}
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

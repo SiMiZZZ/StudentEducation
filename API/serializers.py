@@ -149,7 +149,7 @@ class TrajectorySerializer(serializers.ModelSerializer):
 class ExpertsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "name", "learning_trajectory", "course_number", "about_self", "image"]
+        fields = ["id", "name", "sex", "learning_trajectory", "education_stage", "course_number", "about_self", "image"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
