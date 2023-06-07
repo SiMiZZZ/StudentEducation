@@ -193,7 +193,7 @@ class OrdersApiView(APIView):
             print(list(map(lambda x: x.id, replies_orders)))
             serializer = self.serializer_class(true_orders, many=True)
         else:
-            serializer = self.serializer_class(orders)
+            serializer = self.serializer_class(orders, many=True)
 
         return_data = list(serializer.data)
 
