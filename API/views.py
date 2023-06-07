@@ -182,7 +182,7 @@ class OrdersApiView(APIView):
 
         replies_orders = Reply.objects.filter(expert_id=request.user.id).values_list("order_id")
         if len(replies_orders) > 0:
-            replies_orders = replies_orders[0]
+            replies_orders = list(map(lambda x: x[0], replies_orders))
             true_orders = []
 
             for order in orders:
