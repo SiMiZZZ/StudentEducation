@@ -183,7 +183,6 @@ class OrdersApiView(APIView):
         replies_orders = Reply.objects.filter(expert_id=request.user.id).values_list("order_id")[0]
         true_orders = []
 
-
         for order in orders:
             if order.id not in replies_orders:
                 true_orders.append(order)
