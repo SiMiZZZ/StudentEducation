@@ -180,16 +180,20 @@ class OrdersApiView(APIView):
         else:
             orders = Order.objects.all()[page*orders_on_page:]
 
-        replies_orders = Reply.objects.filter(expert_id=request.user.id).values_list("order_id")[0]
-        true_orders = []
+        replies_orders = Reply.objects.filter(expert_id=request.user.id).values_list("order_id")
+        if len(replies_orders) > 0:
+            replies_orders = replies_orders[0]
+            true_orders = []
 
-        for order in orders:
-            print(order.id)
-            if order.id not in replies_orders:
-                true_orders.append(order)
+            for order in orders:
+                print(order.id)
+                if order.id not in replies_orders:
+                    true_orders.append(order)
 
-        print(list(map(lambda x: x.id, replies_orders)))
-        serializer = self.serializer_class(true_orders, many=True)
+            print(list(map(lambda x: x.id, replies_orders)))
+            serializer = self.serializer_class(true_orders, many=True)
+        else:
+            serializer = self.serializer_class(orders)
 
         return_data = list(serializer.data)
 
