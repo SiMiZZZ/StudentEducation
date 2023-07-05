@@ -85,6 +85,11 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def delete(self, request):
+        user = User.objects.get(id=request.user.id)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class CompetenceAPIView(APIView):
     permission_classes = (AllowAny,)
@@ -165,6 +170,13 @@ class OrderApiView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, order_id):
+        order = Order.objects.get(id=order_id)
+        if order.student.id != request.user.id:
+            return Response("Отсутствие прав доступа", status=status.HTTP_403_FORBIDDEN)
+        order.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserOrdersApiView(APIView):
