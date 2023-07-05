@@ -75,11 +75,10 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(return_data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        serializer_data = request.data.get('user', {})
 
         # Паттерн сериализации, валидирования и сохранения - то, о чем говорили
         serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
+            request.user, data=request.data, partial=True
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -154,6 +153,19 @@ class OrderApiView(APIView):
         serializer = self.serializer_class(serializer_data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, order_id):
+        order = Order.objects.get(id=order_id)
+        if order.student.id != request.user.id:
+            return Response("Отсутствие прав доступа", status=status.HTTP_403_FORBIDDEN)
+        serializer = self.serializer_class(
+            order, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserOrdersApiView(APIView):
     permission_classes = (IsAuthenticated,)
