@@ -42,7 +42,7 @@ class RegistrationAPIView(APIView):
         print(user.learning_trajectory)
 
     def save_competences(self, email, competences):
-        user = User.objects.filter(email=email).first()
+        user = User.objects.get(email=email)
         for competence_name in competences:
             competence = Competence.objects.filter(name=competence_name).first()
             user_competence = User_competence(user_id=user, competence_id=competence)
@@ -82,6 +82,13 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        if "competencies" in request.data and request.data["competencies"] != "":
+            User_competence.objects.filter(user_id=request.user.id).delete()
+            for competence_name in request.data["competencies"]:
+                competence = Competence.objects.get(name=competence_name)
+                user_competence = User_competence(user_id=user, competence_id=competence)
+                user_competence.save()
+
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
